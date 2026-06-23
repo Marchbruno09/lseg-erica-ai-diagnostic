@@ -1,0 +1,1308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LSEG AI Transformation Diagnostic</title>
+  <style>
+    :root {
+      --bg: #dcefe1;
+      --bg-strong: #c6e3cf;
+      --ink: #10251d;
+      --muted: #547064;
+      --line: rgba(16, 37, 29, 0.16);
+      --panel: rgba(248, 252, 247, 0.82);
+      --panel-solid: #f8fcf7;
+      --green: #176c4a;
+      --green-dark: #0d4e36;
+      --mint: #e9f6ea;
+      --amber: #e0aa35;
+      --coral: #d96b4f;
+      --blue: #315f8c;
+      --shadow: 0 24px 80px rgba(16, 37, 29, 0.16);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      overflow: hidden;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .stage {
+      position: relative;
+      width: min(100vw, 177.78vh);
+      height: min(56.25vw, 100vh);
+      min-width: 960px;
+      min-height: 540px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 12% 14%, rgba(255, 255, 255, 0.52), transparent 28%),
+        linear-gradient(135deg, rgba(220, 239, 225, 0.96), rgba(198, 227, 207, 0.94));
+    }
+
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: -12%;
+      background-image:
+        linear-gradient(rgba(16, 37, 29, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16, 37, 29, 0.055) 1px, transparent 1px);
+      background-size: 54px 54px;
+      transform: rotate(-2deg);
+      pointer-events: none;
+    }
+
+    .stage::after {
+      content: "";
+      position: absolute;
+      right: -12%;
+      bottom: -20%;
+      width: 52%;
+      height: 64%;
+      background:
+        linear-gradient(145deg, transparent 16%, rgba(23, 108, 74, 0.12) 16% 18%, transparent 18% 38%, rgba(49, 95, 140, 0.12) 38% 40%, transparent 40%),
+        linear-gradient(35deg, transparent 24%, rgba(217, 107, 79, 0.14) 24% 26%, transparent 26%);
+      transform: rotate(-8deg);
+      pointer-events: none;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: grid;
+      grid-template-rows: 74px 1fr 76px;
+      padding: 28px 36px 30px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .brand img {
+      width: 96px;
+      height: auto;
+      display: block;
+    }
+
+    .brand-divider {
+      width: 1px;
+      height: 34px;
+      background: var(--line);
+    }
+
+    .brand-title {
+      line-height: 1.05;
+      min-width: 0;
+    }
+
+    .brand-title strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 760;
+    }
+
+    .brand-title span {
+      display: block;
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .progress {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(16, 37, 29, 0.18);
+      transition: width 180ms ease, background 180ms ease;
+    }
+
+    .dot.active {
+      width: 34px;
+      background: var(--green);
+    }
+
+    .dot.done {
+      background: rgba(23, 108, 74, 0.48);
+    }
+
+    .counter {
+      justify-self: end;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .counter strong {
+      color: var(--ink);
+      font-size: 19px;
+    }
+
+    main {
+      position: relative;
+      min-height: 0;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(22px);
+      transition: opacity 240ms ease, transform 240ms ease;
+    }
+
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .intro {
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 34px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      width: max-content;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid rgba(23, 108, 74, 0.22);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.44);
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 760;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--coral);
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 880px;
+      margin-top: 26px;
+      font-size: clamp(48px, 5.1vw, 78px);
+      line-height: 0.98;
+      font-weight: 800;
+    }
+
+    .intro-copy {
+      max-width: 710px;
+      margin-top: 26px;
+      color: #244036;
+      font-size: 23px;
+      line-height: 1.34;
+      font-weight: 500;
+    }
+
+    .intro-actions {
+      margin-top: 34px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .primary,
+    .secondary,
+    .nav-btn {
+      border: 0;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+    }
+
+    .primary {
+      min-width: 194px;
+      min-height: 54px;
+      padding: 0 22px;
+      background: var(--green);
+      color: white;
+      box-shadow: 0 18px 34px rgba(23, 108, 74, 0.22);
+      font-size: 16px;
+      font-weight: 760;
+    }
+
+    .secondary {
+      min-height: 54px;
+      padding: 0 18px;
+      background: rgba(255, 255, 255, 0.46);
+      border: 1px solid rgba(16, 37, 29, 0.14);
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .primary:hover,
+    .secondary:hover,
+    .nav-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .intro-visual {
+      position: relative;
+      align-self: stretch;
+      display: grid;
+      place-items: center;
+    }
+
+    .diagnostic-board {
+      width: 100%;
+      max-width: 560px;
+      aspect-ratio: 1.06 / 1;
+      border-radius: var(--radius);
+      background: var(--panel);
+      border: 1px solid rgba(16, 37, 29, 0.11);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+      backdrop-filter: blur(14px);
+    }
+
+    .board-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    .board-top strong {
+      font-size: 19px;
+      line-height: 1.15;
+    }
+
+    .board-top span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .signal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      min-height: 0;
+    }
+
+    .signal {
+      border-radius: var(--radius);
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px solid rgba(16, 37, 29, 0.08);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .signal b {
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .signal i {
+      display: block;
+      width: 44px;
+      height: 5px;
+      border-radius: 999px;
+      background: var(--green);
+    }
+
+    .signal:nth-child(2) i {
+      background: var(--amber);
+      width: 64px;
+    }
+
+    .signal:nth-child(3) i {
+      background: var(--blue);
+      width: 54px;
+    }
+
+    .signal:nth-child(4) i {
+      background: var(--coral);
+      width: 72px;
+    }
+
+    .board-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .question {
+      grid-template-columns: minmax(0, 0.76fr) minmax(460px, 1fr);
+      gap: 30px;
+      align-items: stretch;
+      padding: 8px 0 0;
+    }
+
+    .question-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .question-label {
+      color: var(--green-dark);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin-top: 18px;
+      font-size: clamp(28px, 2.7vw, 40px);
+      line-height: 1.08;
+      font-weight: 820;
+    }
+
+    .question-emphasis {
+      color: var(--green-dark);
+      font-weight: 860;
+    }
+
+    .question-hint {
+      margin-top: 20px;
+      max-width: 520px;
+      color: #3c5e50;
+      font-size: 18px;
+      line-height: 1.35;
+      font-weight: 520;
+    }
+
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-rows: 1fr;
+      gap: 14px;
+      min-height: 0;
+      align-content: center;
+    }
+
+    .option {
+      position: relative;
+      min-height: 174px;
+      border: 1px solid rgba(16, 37, 29, 0.13);
+      border-radius: var(--radius);
+      background: rgba(248, 252, 247, 0.74);
+      color: var(--ink);
+      text-align: left;
+      padding: 20px 22px;
+      cursor: pointer;
+      box-shadow: 0 10px 28px rgba(16, 37, 29, 0.06);
+      transition: transform 150ms ease, background 150ms ease, border 150ms ease, box-shadow 150ms ease;
+      overflow: hidden;
+    }
+
+    .option:hover {
+      transform: translateY(-2px);
+      border-color: rgba(23, 108, 74, 0.38);
+      box-shadow: 0 18px 34px rgba(16, 37, 29, 0.11);
+    }
+
+    .option.selected {
+      background: #f7fff8;
+      border-color: rgba(23, 108, 74, 0.72);
+      box-shadow: 0 20px 42px rgba(23, 108, 74, 0.18);
+    }
+
+    .option.selected::after {
+      content: "";
+      position: absolute;
+      right: 18px;
+      top: 18px;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: inset 0 0 0 6px #f7fff8;
+    }
+
+    .option-code {
+      display: inline-grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: var(--mint);
+      color: var(--green-dark);
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .option-text {
+      display: block;
+      margin-top: 16px;
+      padding-right: 24px;
+      font-size: clamp(20px, 1.58vw, 25px);
+      line-height: 1.14;
+      font-weight: 760;
+    }
+
+    .summary {
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: stretch;
+      padding-top: 0;
+    }
+
+    .summary-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.35fr);
+      gap: 18px;
+      align-items: end;
+    }
+
+    .summary-hero h2 {
+      margin-top: 10px;
+      max-width: 960px;
+      font-size: clamp(30px, 3.15vw, 48px);
+      line-height: 1;
+      font-weight: 840;
+    }
+
+    .summary-copy {
+      color: #2f5345;
+      font-size: clamp(14px, 1.08vw, 17px);
+      line-height: 1.28;
+      font-weight: 620;
+    }
+
+    .summary-flow {
+      display: grid;
+      grid-template-rows: minmax(0, 0.92fr) 28px minmax(0, 1fr);
+      gap: 8px;
+      min-height: 0;
+    }
+
+    .summary-column {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 9px;
+      min-height: 0;
+    }
+
+    .summary-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .summary-heading span {
+      color: var(--muted);
+      font-weight: 760;
+      text-transform: none;
+    }
+
+    .pain-stack,
+    .linkage-stack {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .flow-arrows {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .pain-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 0;
+      overflow: hidden;
+      border-radius: var(--radius);
+      border: 1px solid rgba(16, 37, 29, 0.11);
+      background: rgba(248, 252, 247, 0.78);
+      box-shadow: 0 14px 36px rgba(16, 37, 29, 0.08);
+      padding: 12px;
+      backdrop-filter: blur(12px);
+    }
+
+    .pain-card.unanswered {
+      opacity: 0.68;
+    }
+
+    .pain-index {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: var(--green-dark);
+      color: white;
+      font-size: 13px;
+      font-weight: 880;
+    }
+
+    .pain-card:nth-child(2) .pain-index {
+      background: var(--amber);
+      color: #261b08;
+    }
+
+    .pain-card:nth-child(3) .pain-index {
+      background: var(--blue);
+    }
+
+    .pain-card:nth-child(4) .pain-index {
+      background: var(--coral);
+    }
+
+    .pain-card strong {
+      display: block;
+      font-size: clamp(13px, 1.02vw, 16px);
+      line-height: 1.18;
+      font-weight: 840;
+    }
+
+    .pain-card span {
+      display: -webkit-box;
+      margin-top: 4px;
+      color: var(--green-dark);
+      font-size: clamp(10.5px, 0.82vw, 12.5px);
+      line-height: 1.18;
+      font-weight: 780;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .pain-card em {
+      display: block;
+      margin-top: 5px;
+      color: #3d5e51;
+      font-size: clamp(10.5px, 0.78vw, 12px);
+      line-height: 1.22;
+      font-style: normal;
+      font-weight: 560;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .flow-arrows {
+      padding: 0;
+    }
+
+    .flow-arrow {
+      display: grid;
+      place-items: center;
+      min-height: 0;
+      color: white;
+      font-size: 19px;
+      font-weight: 900;
+    }
+
+    .flow-arrow::before {
+      content: "v";
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 26px;
+      border-radius: var(--radius);
+      background: linear-gradient(90deg, var(--green), var(--green-dark));
+      box-shadow: 0 12px 24px rgba(23, 108, 74, 0.18);
+    }
+
+    .linkage-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 9px;
+      min-height: 0;
+      overflow: hidden;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: linear-gradient(135deg, #10251d, #143b2e);
+      color: white;
+      box-shadow: 0 16px 42px rgba(16, 37, 29, 0.16);
+      padding: 12px;
+    }
+
+    .linkage-card:nth-child(2) {
+      background: linear-gradient(135deg, #243515, #4f4217);
+    }
+
+    .linkage-card:nth-child(3) {
+      background: linear-gradient(135deg, #122d44, #183c57);
+    }
+
+    .linkage-card:nth-child(4) {
+      background: linear-gradient(135deg, #3a241f, #5a3027);
+    }
+
+    .linkage-card strong {
+      display: block;
+      font-size: clamp(12px, 0.92vw, 15px);
+      line-height: 1.16;
+      font-weight: 840;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+    }
+
+    .linkage-card span {
+      display: block;
+      margin-top: 5px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: clamp(9.5px, 0.68vw, 11px);
+      line-height: 1.2;
+      font-weight: 560;
+    }
+
+    .module-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .module-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 5px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.9);
+      font-size: clamp(8.8px, 0.62vw, 10px);
+      line-height: 1.04;
+      font-weight: 840;
+      white-space: normal;
+    }
+
+    .module-pill.primary {
+      background: var(--amber);
+      color: #201704;
+      border-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .demo-handoff {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      border-radius: var(--radius);
+      background: linear-gradient(90deg, #10251d, #0d4e36);
+      color: white;
+      padding: 11px 14px;
+      box-shadow: 0 20px 54px rgba(16, 37, 29, 0.18);
+    }
+
+    .handoff-badge {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .demo-handoff strong {
+      display: block;
+      font-size: clamp(15px, 1.18vw, 19px);
+      line-height: 1.08;
+    }
+
+    .demo-handoff span {
+      display: block;
+      margin-top: 5px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 11.5px;
+      line-height: 1.2;
+      font-weight: 620;
+    }
+
+    .module-rail {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+      max-width: 500px;
+    }
+
+    .rail-chip {
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 9.5px;
+      font-weight: 830;
+      white-space: nowrap;
+    }
+
+    footer {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: end;
+      gap: 18px;
+    }
+
+    .status {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-btn {
+      min-width: 118px;
+      min-height: 46px;
+      padding: 0 17px;
+      border: 1px solid rgba(16, 37, 29, 0.15);
+      background: rgba(255, 255, 255, 0.58);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 780;
+    }
+
+    .nav-btn.next {
+      background: var(--green);
+      border-color: var(--green);
+      color: white;
+      box-shadow: 0 14px 32px rgba(23, 108, 74, 0.18);
+    }
+
+    .nav-btn:disabled {
+      cursor: default;
+      opacity: 0.35;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .stage-note {
+      justify-self: end;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 1000px), (max-height: 620px) {
+      body {
+        overflow: auto;
+      }
+
+      .stage {
+        min-width: 0;
+        min-height: 0;
+      }
+
+      .app {
+        padding: 18px 20px 20px;
+        grid-template-rows: 58px 1fr 58px;
+      }
+
+      h1 {
+        font-size: 44px;
+      }
+
+      h2 {
+        font-size: 28px;
+      }
+
+      .intro-copy,
+      .question-hint {
+        font-size: 16px;
+      }
+
+      .option {
+        min-height: 132px;
+        padding: 14px;
+      }
+
+      .option-text {
+        font-size: 17px;
+        margin-top: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage" role="application" aria-label="LSEG AI transformation diagnostic">
+    <div class="app">
+      <header>
+        <div class="brand">
+          <img src="dist/public/brand/01ai-logo-color.svg" alt="01.AI" />
+          <div class="brand-divider"></div>
+          <div class="brand-title">
+            <strong>LSEG AI Workforce Transformation</strong>
+            <span>Diagnostic interaction for Erica</span>
+          </div>
+        </div>
+        <div class="progress" aria-label="Progress"></div>
+        <div class="counter"><strong id="counterNow">00</strong><span id="counterTotal">/ 00</span></div>
+      </header>
+
+      <main id="screens"></main>
+
+      <footer>
+        <div class="status" id="statusText">Ready for the opening question.</div>
+        <div class="nav">
+          <button class="nav-btn prev" id="prevBtn" type="button" aria-label="Previous">Back</button>
+          <button class="nav-btn next" id="nextBtn" type="button" aria-label="Next">Start</button>
+        </div>
+        <div class="stage-note">Designed for 16:9 pitch display</div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        id: "readiness",
+        label: "Readiness visibility",
+        text: "Today, how confident are you that LSEG can see which teams are <span class=\"question-emphasis\">truly ready for AI adoption</span>, and which teams may look ready but <span class=\"question-emphasis\">lack domain depth or trust</span>?",
+        hint: "Choose the description closest to Erica's current view.",
+        options: [
+          { code: "A", text: "We mainly see AI adoption through training completion and tool usage", insight: "Readiness is being inferred from activity, not from domain depth, trust or work redesign capability." },
+          { code: "B", text: "We can identify readiness at BU / function level, but not at team or role level", insight: "Leadership has a broad view, but may not yet see adoption barriers at the team and role level." },
+          { code: "C", text: "We can see pockets of readiness, but not the underlying resistance or trust issues", insight: "Momentum exists, but the adoption map is missing the reasons why it may or may not scale." },
+          { code: "D", text: "We do not yet have a reliable map of AI readiness across the workforce", insight: "The organisation needs a sharper workforce intelligence layer before scaling AI adoption." }
+        ]
+      },
+      {
+        id: "drivers",
+        label: "Informal transformation drivers",
+        text: "Across 38,000 people, do you know who the <span class=\"question-emphasis\">real AI transformation catalysts</span> are -- not just the formal managers, but the people who can actually <span class=\"question-emphasis\">redesign work and bring others with them</span>?",
+        hint: "Choose the closest current way LSEG finds real transformation drivers.",
+        options: [
+          { code: "A", text: "We rely mostly on formal leaders and org charts", insight: "Formal hierarchy may miss the people who genuinely shape adoption behaviour." },
+          { code: "B", text: "We rely on managers to nominate strong change agents", insight: "Nominations help, but can under-detect hidden influencers and expert networks." },
+          { code: "C", text: "We know some informal drivers, but not systematically across the group", insight: "The signal exists, but it is not yet systematic enough for repeatable scaling." },
+          { code: "D", text: "We do not yet have a data-backed way to identify AI-enabled DRIs", insight: "Driver identification can become a decisive HR and change-management lever." }
+        ]
+      },
+      {
+        id: "expertise",
+        label: "Expert knowledge capture",
+        text: "Which <span class=\"question-emphasis\">critical experts</span> would create the biggest business risk if they left before their <span class=\"question-emphasis\">judgement was captured and scaled</span>?",
+        hint: "Choose the closest current visibility on scarce expert judgement.",
+        options: [
+          { code: "A", text: "We know some key experts through succession planning", insight: "The obvious critical experts are known, but the hidden expert map may be thinner." },
+          { code: "B", text: "We know critical roles, but not always the judgement or workflow knowledge behind them", insight: "Role coverage is visible, but tacit judgement and workflow dependency may remain exposed." },
+          { code: "C", text: "We often identify expert dependency only when someone leaves or a project stalls", insight: "Knowledge capture is reacting to disruption rather than anticipating it." },
+          { code: "D", text: "We do not yet have a systematic way to prioritise which expert judgement to capture", insight: "Expert-to-agent pairing needs a structured way to prioritise what to capture first." }
+        ]
+      },
+      {
+        id: "pilots",
+        label: "Pilot friction",
+        text: "In your AI pilots so far, where does progress slow down: technology readiness, <span class=\"question-emphasis\">business ownership</span>, <span class=\"question-emphasis\">employee trust</span>, <span class=\"question-emphasis\">risk approval</span>, or unclear <span class=\"question-emphasis\">human-AI responsibility</span>?",
+        hint: "Choose the friction that most often slows scaling.",
+        options: [
+          { code: "A", text: "Technology is ready, but business ownership is unclear", insight: "Use cases need clearer business accountability beyond technology delivery." },
+          { code: "B", text: "Business interest is high, but employee trust and adoption are uneven", insight: "Adoption depends on whether people believe the new model is fair and useful." },
+          { code: "C", text: "Risk / compliance approval slows down scaling", insight: "Controls, policy and assurance need to be designed into the workflow early." },
+          { code: "D", text: "Human-AI responsibility is unclear once pilots enter real workflows", insight: "Teams need a clearer line between human judgement, AI support and agent action." }
+        ]
+      },
+      {
+        id: "hrbp",
+        label: "HRBP role in human-agent design",
+        text: "How do HRBPs currently help business leaders decide which tasks should <span class=\"question-emphasis\">stay human-led</span>, which can be <span class=\"question-emphasis\">AI-augmented</span>, and which can be <span class=\"question-emphasis\">handed to agents</span>?",
+        hint: "Choose how HRBPs most commonly engage today.",
+        options: [
+          { code: "A", text: "HRBPs mainly support after the business and technology teams define the AI use case", insight: "HR is brought in late, after the workforce design choices are already constrained." },
+          { code: "B", text: "HRBPs help with role impact, training and change communication, but not task redesign", insight: "HR supports adoption, but is not yet shaping the human-agent split." },
+          { code: "C", text: "HRBPs participate in workforce planning, but lack tools to map human-AI task allocation", insight: "The intent exists, but HRBPs need practical instrumentation for task-level decisions." },
+          { code: "D", text: "HRBPs are not yet systematically involved in human-agent operating model design", insight: "The transformation needs a stronger bridge between HR strategy and agentic workflow design." }
+        ]
+      }
+    ];
+
+    const intelligenceModules = {
+      readiness: "AI Adoption Readiness Map",
+      dri: "DRI Finder",
+      retention: "Retention Radar",
+      capture: "Domain Expert Knowledge Capture",
+      ledger: "Promise Ledger"
+    };
+
+    const painPointMap = {
+      readiness: {
+        title: "Readiness visibility is too blunt",
+        defaultSignal: "Training completion and tool usage do not show whether teams have domain depth, trust or redesign capacity.",
+        linkage: "Turn adoption into a team and role-level readiness map.",
+        modules: [
+          { key: "readiness", role: "primary" },
+          { key: "dri", role: "support" }
+        ]
+      },
+      drivers: {
+        title: "Real AI transformation drivers are hidden",
+        defaultSignal: "Formal hierarchy does not always reveal who can redesign work, influence peers and manage AI workers.",
+        linkage: "Find informal DRIs, then connect them to accountable delivery.",
+        modules: [
+          { key: "dri", role: "primary" },
+          { key: "ledger", role: "support" }
+        ]
+      },
+      expertise: {
+        title: "Expert judgement is trapped in scarce people",
+        defaultSignal: "Critical judgement often sits with long-tenured experts and becomes visible only when delivery or retention risk appears.",
+        linkage: "Prioritise expert knowledge and capture it as workflows, ontology and agent instructions.",
+        modules: [
+          { key: "capture", role: "primary" },
+          { key: "retention", role: "support" }
+        ]
+      },
+      pilots: {
+        title: "AI pilots stall at ownership, trust and risk boundaries",
+        defaultSignal: "Scaling slows when business ownership, employee trust, risk approval or human-AI responsibility is unclear.",
+        linkage: "Make commitments, blockers and responsibility lines visible before pilots scale.",
+        modules: [
+          { key: "ledger", role: "primary" },
+          { key: "dri", role: "support" },
+          { key: "readiness", role: "support" }
+        ]
+      },
+      hrbp: {
+        title: "HRBPs lack a task-level human-agent design tool",
+        defaultSignal: "HR can support change, but needs sharper instrumentation to decide what stays human-led, AI-augmented or agent-led.",
+        linkage: "Equip HRBPs to redesign work around capability, expert judgement and accountable owners.",
+        modules: [
+          { key: "readiness", role: "primary" },
+          { key: "capture", role: "support" },
+          { key: "dri", role: "support" }
+        ]
+      }
+    };
+
+    const selections = new Map(questions.map((question) => [question.id, null]));
+    let index = 0;
+    const totalScreens = questions.length + 2;
+
+    const screensEl = document.getElementById("screens");
+    const progressEl = document.querySelector(".progress");
+    const counterNowEl = document.getElementById("counterNow");
+    const counterTotalEl = document.getElementById("counterTotal");
+    const statusTextEl = document.getElementById("statusText");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    function pad(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function makeIntro() {
+      const section = document.createElement("section");
+      section.className = "screen intro";
+      section.innerHTML = `
+        <div>
+          <div class="eyebrow">Executive diagnostic</div>
+          <h1>Where is AI transformation really getting stuck?</h1>
+          <p class="intro-copy">A short, click-through conversation with Erica before the product demo. The aim is to surface workforce pain points, not to score maturity.</p>
+          <div class="intro-actions">
+            <button class="primary" type="button" data-jump-next>Begin diagnostic</button>
+            <button class="secondary" type="button" data-jump-summary>Skip to pain map</button>
+          </div>
+        </div>
+        <div class="intro-visual">
+            <div class="diagnostic-board">
+              <div class="board-top">
+              <strong>Five diagnostic questions</strong>
+              <span>Choose one best fit</span>
+            </div>
+            <div class="signal-grid">
+              <div class="signal"><b>Readiness visibility</b><i></i></div>
+              <div class="signal"><b>Transformation drivers</b><i></i></div>
+              <div class="signal"><b>Expert knowledge risk</b><i></i></div>
+              <div class="signal"><b>Pilot friction</b><i></i></div>
+              <div class="signal"><b>Human-agent design</b><i></i></div>
+            </div>
+            <div class="board-bottom"><span>LSEG context</span><span>No maturity score</span></div>
+          </div>
+        </div>
+      `;
+      return section;
+    }
+
+    function makeQuestion(question, questionIndex) {
+      const section = document.createElement("section");
+      section.className = "screen question";
+      section.dataset.questionId = question.id;
+      const options = question.options.map((option) => `
+        <button class="option" type="button" data-question="${question.id}" data-option="${option.code}" aria-pressed="false">
+          <span class="option-code">${option.code}</span>
+          <span class="option-text">${option.text}</span>
+        </button>
+      `).join("");
+      section.innerHTML = `
+        <div class="question-copy">
+          <div class="question-label">${pad(questionIndex + 1)} / ${pad(questions.length)} · ${question.label}</div>
+          <h2>${question.text}</h2>
+          <p class="question-hint">${question.hint}</p>
+        </div>
+        <div class="option-grid">${options}</div>
+      `;
+      return section;
+    }
+
+    function makeSummary() {
+      const section = document.createElement("section");
+      section.className = "screen summary";
+      const moduleRail = Object.values(intelligenceModules).map((module) => `
+        <span class="rail-chip">${module}</span>
+      `).join("");
+      section.innerHTML = `
+        <div class="summary-hero">
+          <div>
+            <div class="eyebrow">Pain-to-module bridge</div>
+            <h2>Five answers reveal where AI transformation needs workforce intelligence.</h2>
+          </div>
+          <p class="summary-copy">First show the pain Erica recognises. Then show which AI Workforce Intelligence modules make each pain point measurable, governable and ready for demo.</p>
+        </div>
+        <div class="summary-flow">
+          <div class="summary-column">
+            <div class="summary-heading">Pain points surfaced <span>from 5 questions</span></div>
+            <div class="pain-stack" id="painStack"></div>
+          </div>
+          <div class="flow-arrows" aria-hidden="true">
+            <div class="flow-arrow"></div>
+            <div class="flow-arrow"></div>
+            <div class="flow-arrow"></div>
+            <div class="flow-arrow"></div>
+            <div class="flow-arrow"></div>
+          </div>
+          <div class="summary-column">
+            <div class="summary-heading">AI Workforce Intelligence linkage <span>primary + support modules</span></div>
+            <div class="linkage-stack" id="linkageStack"></div>
+          </div>
+        </div>
+        <div class="demo-handoff">
+          <div class="handoff-badge">5</div>
+          <div>
+            <strong>Transition: demo the five modules as the operating system behind these pain points.</strong>
+            <span>Move from Erica's recognised pain to the product surfaces that locate readiness, DRIs, retention risk, expert knowledge and accountable delivery.</span>
+          </div>
+          <div class="module-rail">${moduleRail}</div>
+        </div>
+      `;
+      return section;
+    }
+
+    function build() {
+      screensEl.appendChild(makeIntro());
+      questions.forEach((question, questionIndex) => screensEl.appendChild(makeQuestion(question, questionIndex)));
+      screensEl.appendChild(makeSummary());
+
+      for (let i = 0; i < totalScreens; i += 1) {
+        const dot = document.createElement("span");
+        dot.className = "dot";
+        progressEl.appendChild(dot);
+      }
+
+      screensEl.addEventListener("click", (event) => {
+        const option = event.target.closest(".option");
+        if (option) {
+          const selectedCode = selections.get(option.dataset.question);
+          selections.set(option.dataset.question, selectedCode === option.dataset.option ? null : option.dataset.option);
+          syncOptionStates();
+          updateFooter();
+          return;
+        }
+
+        if (event.target.closest("[data-jump-next]")) {
+          goTo(1);
+          return;
+        }
+
+        if (event.target.closest("[data-jump-summary]")) {
+          goTo(totalScreens - 1);
+          return;
+        }
+
+      });
+
+      prevBtn.addEventListener("click", () => goTo(index - 1));
+      nextBtn.addEventListener("click", () => goTo(index + 1));
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight") goTo(index + 1);
+        if (event.key === "ArrowLeft") goTo(index - 1);
+      });
+
+      goTo(0);
+    }
+
+    function goTo(nextIndex) {
+      index = Math.max(0, Math.min(totalScreens - 1, nextIndex));
+      document.querySelectorAll(".screen").forEach((screen, screenIndex) => {
+        screen.classList.toggle("active", screenIndex === index);
+      });
+      renderSummary();
+      updateFooter();
+    }
+
+    function syncOptionStates() {
+      document.querySelectorAll(".option").forEach((option) => {
+        const selected = selections.get(option.dataset.question) === option.dataset.option;
+        option.classList.toggle("selected", selected);
+        option.setAttribute("aria-pressed", String(selected));
+      });
+    }
+
+    function getPainRows() {
+      return questions.map((question, questionIndex) => {
+        const selectedCode = selections.get(question.id);
+        const selectedOption = question.options.find((option) => option.code === selectedCode);
+        const painConfig = painPointMap[question.id];
+        return {
+          number: questionIndex + 1,
+          label: question.label,
+          title: painConfig.title,
+          signal: selectedOption ? `${selectedOption.code}. ${selectedOption.text}` : "Awaiting Erica's best-fit answer",
+          insight: selectedOption ? selectedOption.insight : painConfig.defaultSignal,
+          linkage: painConfig.linkage,
+          modules: painConfig.modules,
+          answered: Boolean(selectedOption)
+        };
+      });
+    }
+
+    function renderSummary() {
+      const painStackEl = document.getElementById("painStack");
+      const linkageStackEl = document.getElementById("linkageStack");
+      if (!painStackEl || !linkageStackEl) return;
+
+      const rows = getPainRows();
+
+      painStackEl.innerHTML = rows.map((item) => `
+        <article class="pain-card${item.answered ? "" : " unanswered"}">
+          <div class="pain-index">${pad(item.number)}</div>
+          <div>
+            <strong>${item.title}</strong>
+            <span>${item.signal}</span>
+            <em>${item.insight}</em>
+          </div>
+        </article>
+      `).join("");
+
+      linkageStackEl.innerHTML = rows.map((item) => {
+        const modulePills = item.modules.map((module) => `
+          <span class="module-pill ${module.role === "primary" ? "primary" : ""}">${intelligenceModules[module.key]}</span>
+        `).join("");
+        return `
+          <article class="linkage-card">
+            <div>
+              <strong>${item.linkage}</strong>
+              <span>${item.modules.length > 1 ? "Primary module first, then supporting evidence or governance layer." : "Primary module for the demo."}</span>
+            </div>
+            <div class="module-pills">${modulePills}</div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function updateFooter() {
+      const dots = document.querySelectorAll(".dot");
+      dots.forEach((dot, dotIndex) => {
+        dot.classList.toggle("active", dotIndex === index);
+        dot.classList.toggle("done", dotIndex < index);
+      });
+
+      counterNowEl.textContent = pad(index + 1);
+      counterTotalEl.textContent = `/ ${pad(totalScreens)}`;
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === totalScreens - 1;
+      nextBtn.textContent = index === 0 ? "Start" : index === totalScreens - 2 ? "Pain map" : "Next";
+
+      if (index === 0) {
+        statusTextEl.textContent = "Ready for the opening question.";
+      } else if (index === totalScreens - 1) {
+        statusTextEl.textContent = "Use the pain-to-module map to transition into the five demos.";
+      } else {
+        const question = questions[index - 1];
+        const selected = selections.get(question.id);
+        statusTextEl.textContent = selected ? `Selected ${selected} for ${question.label}.` : "Choose the closest fit.";
+      }
+    }
+
+    build();
+  </script>
+</body>
+</html>
