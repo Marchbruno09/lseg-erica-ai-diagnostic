@@ -665,6 +665,14 @@
       opacity: 0.72;
     }
 
+    .bridge-card.mature {
+      border-color: rgba(7, 55, 34, 0.42);
+      background:
+        linear-gradient(90deg, rgba(167, 213, 91, 0.24), transparent 42%),
+        rgba(246, 252, 241, 0.86);
+      box-shadow: inset 5px 0 0 #a7d55b;
+    }
+
     .bridge-number {
       display: grid;
       place-items: center;
@@ -692,6 +700,15 @@
     .bridge-card:nth-child(5) .bridge-number {
       background: #a7d55b;
       color: var(--ink);
+    }
+
+    .bridge-card.mature .bridge-number {
+      background: var(--amber);
+      color: var(--ink);
+    }
+
+    .bridge-card.mature .bridge-pain strong {
+      color: var(--green-dark);
     }
 
     .bridge-pain,
@@ -1180,7 +1197,7 @@
         text: "Today, how confident are you that LSEG can see which teams are <span class=\"question-emphasis\">truly ready for AI adoption</span>, and which teams may look ready but <span class=\"question-emphasis\">lack domain depth or trust</span>?",
         hint: "Choose the description closest to Erica's current view.",
         options: [
-          { code: "A", text: "We mainly see AI adoption through training completion and tool usage", insight: "Readiness is being inferred from activity, not from domain depth, trust or work redesign capability." },
+          { code: "A", text: "We already have a team and role-level view of AI readiness, domain depth and trust", insight: "AI readiness is already managed as workforce intelligence, not just training or tool usage." },
           { code: "B", text: "We can identify readiness at BU / function level, but not at team or role level", insight: "Leadership has a broad view, but may not yet see adoption barriers at the team and role level." },
           { code: "C", text: "We can see pockets of readiness, but not the underlying resistance or trust issues", insight: "Momentum exists, but the adoption map is missing the reasons why it may or may not scale." },
           { code: "D", text: "We do not yet have a reliable map of AI readiness across the workforce", insight: "The organisation needs a sharper workforce intelligence layer before scaling AI adoption." }
@@ -1192,7 +1209,7 @@
         text: "Across 38,000 people, do you know who the <span class=\"question-emphasis\">real AI transformation catalysts</span> are -- not just the formal managers, but the people who can actually <span class=\"question-emphasis\">redesign work and bring others with them</span>?",
         hint: "Choose the closest current way LSEG finds real transformation drivers.",
         options: [
-          { code: "A", text: "We rely mostly on formal leaders and org charts", insight: "Formal hierarchy may miss the people who genuinely shape adoption behaviour." },
+          { code: "A", text: "We already know the informal AI transformation drivers across priority teams", insight: "LSEG can already identify the people who redesign work and bring others with them." },
           { code: "B", text: "We rely on managers to nominate strong change agents", insight: "Nominations help, but can under-detect hidden influencers and expert networks." },
           { code: "C", text: "We know some informal drivers, but not systematically across the group", insight: "The signal exists, but it is not yet systematic enough for repeatable scaling." },
           { code: "D", text: "We do not yet have a data-backed way to identify AI-enabled DRIs", insight: "Driver identification can become a decisive HR and change-management lever." }
@@ -1204,7 +1221,7 @@
         text: "Which <span class=\"question-emphasis\">critical experts</span> would create the biggest business risk if they left before their <span class=\"question-emphasis\">judgement was captured and scaled</span>?",
         hint: "Choose the closest current visibility on scarce expert judgement.",
         options: [
-          { code: "A", text: "We know some key experts through succession planning", insight: "The obvious critical experts are known, but the hidden expert map may be thinner." },
+          { code: "A", text: "We already capture critical expert judgement into workflows and agent instructions", insight: "Expert judgement is already being converted into reusable capability, not only succession coverage." },
           { code: "B", text: "We know critical roles, but not always the judgement or workflow knowledge behind them", insight: "Role coverage is visible, but tacit judgement and workflow dependency may remain exposed." },
           { code: "C", text: "We often identify expert dependency only when someone leaves or a project stalls", insight: "Knowledge capture is reacting to disruption rather than anticipating it." },
           { code: "D", text: "We do not yet have a systematic way to prioritise which expert judgement to capture", insight: "Expert-to-agent pairing needs a structured way to prioritise what to capture first." }
@@ -1216,7 +1233,7 @@
         text: "In your AI pilots so far, where does progress slow down: technology readiness, <span class=\"question-emphasis\">business ownership</span>, <span class=\"question-emphasis\">employee trust</span>, <span class=\"question-emphasis\">risk approval</span>, or unclear <span class=\"question-emphasis\">human-AI responsibility</span>?",
         hint: "Choose the friction that most often slows scaling.",
         options: [
-          { code: "A", text: "Technology is ready, but business ownership is unclear", insight: "Use cases need clearer business accountability beyond technology delivery." },
+          { code: "A", text: "AI pilots already have clear owners, risk gates and human-AI responsibility", insight: "The operating model for AI pilots is already clear enough to support disciplined scaling." },
           { code: "B", text: "Business interest is high, but employee trust and adoption are uneven", insight: "Adoption depends on whether people believe the new model is fair and useful." },
           { code: "C", text: "Risk / compliance approval slows down scaling", insight: "Controls, policy and assurance need to be designed into the workflow early." },
           { code: "D", text: "Human-AI responsibility is unclear once pilots enter real workflows", insight: "Teams need a clearer line between human judgement, AI support and agent action." }
@@ -1228,7 +1245,7 @@
         text: "How do HRBPs currently help business leaders decide which tasks should <span class=\"question-emphasis\">stay human-led</span>, which can be <span class=\"question-emphasis\">AI-augmented</span>, and which can be <span class=\"question-emphasis\">handed to agents</span>?",
         hint: "Choose how HRBPs most commonly engage today.",
         options: [
-          { code: "A", text: "HRBPs mainly support after the business and technology teams define the AI use case", insight: "HR is brought in late, after the workforce design choices are already constrained." },
+          { code: "A", text: "HRBPs already help design human-led, AI-augmented and agent-led work", insight: "HR is already shaping the human-agent operating model before roles and workflows are locked." },
           { code: "B", text: "HRBPs help with role impact, training and change communication, but not task redesign", insight: "HR supports adoption, but is not yet shaping the human-agent split." },
           { code: "C", text: "HRBPs participate in workforce planning, but lack tools to map human-AI task allocation", insight: "The intent exists, but HRBPs need practical instrumentation for task-level decisions." },
           { code: "D", text: "HRBPs are not yet systematically involved in human-agent operating model design", insight: "The transformation needs a stronger bridge between HR strategy and agentic workflow design." }
@@ -1247,8 +1264,10 @@
     const painPointMap = {
       readiness: {
         title: "Readiness visibility is too blunt",
+        matureTitle: "Readiness intelligence is already in place",
         defaultSignal: "Training completion and tool usage do not show whether teams have domain depth, trust or redesign capacity.",
         linkage: "Turn adoption into a team and role-level readiness map.",
+        matureLinkage: "Use the Readiness Map to maintain momentum and spot residual pockets of resistance.",
         modules: [
           { key: "readiness", role: "primary" },
           { key: "dri", role: "support" }
@@ -1256,8 +1275,10 @@
       },
       drivers: {
         title: "Real AI transformation drivers are hidden",
+        matureTitle: "AI transformation drivers are already visible",
         defaultSignal: "Formal hierarchy does not always reveal who can redesign work, influence peers and manage AI workers.",
         linkage: "Find informal DRIs, then connect them to accountable delivery.",
+        matureLinkage: "Use DRI Finder to scale proven transformation drivers into more workflows.",
         modules: [
           { key: "dri", role: "primary" },
           { key: "ledger", role: "support" }
@@ -1265,8 +1286,10 @@
       },
       expertise: {
         title: "Expert judgement is trapped in scarce people",
+        matureTitle: "Expert judgement is already becoming reusable capability",
         defaultSignal: "Critical judgement often sits with long-tenured experts and becomes visible only when delivery or retention risk appears.",
         linkage: "Capture scarce judgement and surface related retention exposure.",
+        matureLinkage: "Use Knowledge Capture to keep expanding expert-to-agent pairing across domains.",
         modules: [
           { key: "capture", role: "primary" },
           { key: "retention", role: "primary" }
@@ -1274,8 +1297,10 @@
       },
       pilots: {
         title: "AI pilots stall at ownership, trust and risk boundaries",
+        matureTitle: "AI pilot governance is already scaling-ready",
         defaultSignal: "Scaling slows when business ownership, employee trust, risk approval or human-AI responsibility is unclear.",
         linkage: "Make commitments, blockers and responsibility lines visible before pilots scale.",
+        matureLinkage: "Use Promise Ledger to keep ownership, risk gates and delivery commitments auditable.",
         modules: [
           { key: "ledger", role: "primary" },
           { key: "dri", role: "support" },
@@ -1284,8 +1309,10 @@
       },
       hrbp: {
         title: "HRBPs lack a task-level human-agent design tool",
+        matureTitle: "HRBPs are already shaping human-agent work design",
         defaultSignal: "HR can support change, but needs sharper instrumentation to decide what stays human-led, AI-augmented or agent-led.",
         linkage: "Equip HRBPs to redesign work around capability, expert judgement and accountable owners.",
+        matureLinkage: "Use workforce intelligence to keep task allocation dynamic as agents mature.",
         modules: [
           { key: "readiness", role: "primary" },
           { key: "capture", role: "support" },
@@ -1317,10 +1344,10 @@
         <div>
           <div class="eyebrow">Executive diagnostic</div>
           <h1>Where is AI transformation really getting stuck?</h1>
-          <p class="intro-copy">A short, click-through conversation before the product demo. The aim is to surface workforce pain points</p>
+          <p class="intro-copy">A short, click-through conversation before the product demo. The aim is to surface workforce strengths and gaps</p>
           <div class="intro-actions">
             <button class="primary" type="button" data-jump-next>Begin diagnostic</button>
-            <button class="secondary" type="button" data-jump-summary>Skip to pain map</button>
+            <button class="secondary" type="button" data-jump-summary>Skip to signals map</button>
           </div>
         </div>
         <div class="intro-visual">
@@ -1367,14 +1394,11 @@
     function makeSummary() {
       const section = document.createElement("section");
       section.className = "screen summary";
-      const moduleRail = Object.values(intelligenceModules).map((module) => `
-        <span class="rail-chip">${module}</span>
-      `).join("");
       section.innerHTML = `
         <div class="summary-hero">
           <div>
             <div class="eyebrow">Workforce signals</div>
-            <h2>These questions reveal that...</h2>
+            <h2>These questions reveal where LSEG is strong, and where workforce intelligence is still needed.</h2>
           </div>
         </div>
         <div class="bridge-board">
@@ -1384,7 +1408,6 @@
           <div>
             <strong>See capability -> identify transformation drivers -> protect critical talent -> capture expert judgement -> close the accountability loop.</strong>
           </div>
-          <div class="module-rail">${moduleRail}</div>
         </div>
       `;
       return section;
@@ -1458,12 +1481,13 @@
         return {
           number: questionIndex + 1,
           label: question.label,
-          title: painConfig.title,
+          title: selectedOption && selectedOption.code === "A" ? painConfig.matureTitle : painConfig.title,
           signal: selectedOption ? `${selectedOption.code}. ${selectedOption.text}` : "Awaiting Erica's best-fit answer",
           insight: selectedOption ? selectedOption.insight : painConfig.defaultSignal,
-          linkage: painConfig.linkage,
+          linkage: selectedOption && selectedOption.code === "A" ? painConfig.matureLinkage : painConfig.linkage,
           modules: painConfig.modules,
-          answered: Boolean(selectedOption)
+          answered: Boolean(selectedOption),
+          mature: Boolean(selectedOption && selectedOption.code === "A")
         };
       });
     }
@@ -1479,7 +1503,7 @@
           <span class="module-pill ${module.role === "primary" ? "primary" : ""}">${intelligenceModules[module.key]}</span>
         `).join("");
         return `
-          <article class="bridge-card${item.answered ? "" : " unanswered"}">
+          <article class="bridge-card${item.answered ? "" : " unanswered"}${item.mature ? " mature" : ""}">
             <div class="bridge-number">${pad(item.number)}</div>
             <div class="bridge-pain">
               <strong>${item.title}</strong>
@@ -1506,7 +1530,7 @@
       counterTotalEl.textContent = `/ ${pad(totalScreens)}`;
       prevBtn.disabled = index === 0;
       nextBtn.disabled = index === totalScreens - 1;
-      nextBtn.textContent = index === 0 ? "Start" : index === totalScreens - 2 ? "Pain map" : "Next";
+      nextBtn.textContent = index === 0 ? "Start" : index === totalScreens - 2 ? "Signals map" : "Next";
 
       if (index === 0) {
         statusTextEl.textContent = "Ready for the opening question.";
