@@ -1120,6 +1120,42 @@
       box-shadow: none;
     }
 
+    body:has(.screen.question.active) {
+      background: var(--bg-strong);
+    }
+
+    .stage:has(.screen.question.active) {
+      background: var(--bg-strong);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .stage:has(.screen.question.active)::before,
+    .stage:has(.screen.question.active)::after {
+      display: none;
+      background: none;
+      background-image: none;
+    }
+
+    .stage:has(.screen.question.active) .app,
+    .stage:has(.screen.question.active) header,
+    .stage:has(.screen.question.active) footer,
+    .stage:has(.screen.question.active) .text-logo,
+    .stage:has(.screen.question.active) .brand-title strong,
+    .stage:has(.screen.question.active) .brand-title span,
+    .stage:has(.screen.question.active) .counter,
+    .stage:has(.screen.question.active) .counter strong,
+    .stage:has(.screen.question.active) .status,
+    .stage:has(.screen.question.active) .nav-btn,
+    .stage:has(.screen.question.active) .question-copy,
+    .stage:has(.screen.question.active) .question-label,
+    .stage:has(.screen.question.active) .question h2,
+    .stage:has(.screen.question.active) .question-hint,
+    .stage:has(.screen.question.active) .option,
+    .stage:has(.screen.question.active) .option-code,
+    .stage:has(.screen.question.active) .option-text {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
     @media (max-width: 1000px), (max-height: 620px) {
       body {
         overflow: auto;
