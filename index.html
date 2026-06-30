@@ -148,10 +148,16 @@
       min-width: 0;
     }
 
-    .brand img {
-      width: 92px;
-      height: auto;
-      display: block;
+    .text-logo {
+      display: inline-flex;
+      align-items: center;
+      color: var(--ink);
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: 0;
+      white-space: nowrap;
     }
 
     .brand-divider {
@@ -1178,7 +1184,7 @@
     <div class="app">
       <header>
         <div class="brand">
-          <img src="dist/public/brand/01ai-logo-color.svg" alt="01.AI" />
+          <span class="text-logo" aria-label="01.AI">01.AI</span>
           <div class="brand-divider"></div>
           <div class="brand-title">
             <strong>LSEG AI Workforce Transformation</strong>
