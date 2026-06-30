@@ -1032,10 +1032,22 @@
       box-shadow: var(--shadow-tight);
     }
 
-    .demo-handoff strong {
+    .demo-handoff a {
       display: block;
+      width: fit-content;
       font-size: 18px;
       line-height: 1.08;
+      font-weight: 800;
+      color: #145849;
+      text-decoration: none;
+      text-underline-offset: 3px;
+      transition: color 160ms ease, text-decoration-color 160ms ease;
+    }
+
+    .demo-handoff a:hover {
+      color: #073722;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
     }
 
     .module-rail {
@@ -1406,7 +1418,7 @@
         </div>
         <div class="demo-handoff">
           <div>
-            <strong>See capability -> identify transformation drivers -> protect critical talent -> capture expert judgement -> close the accountability loop.</strong>
+            <a href="https://lseg-ai-workforce-intelligence-demo.vercel.app/#radar">Let's start the demo!</a>
           </div>
         </div>
       `;
